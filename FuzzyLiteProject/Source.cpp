@@ -22,6 +22,19 @@ int main()
 	obstacle->addTerm(new Ramp("left", 1.000, 0.000));
 	obstacle->addTerm(new Ramp("right", 0.000, 1.000));
 
+	//speed
+	InputVariable* speed = new InputVariable;
+	engine->addInputVariable(speed);
+
+	//set values
+	speed->setName("speed");
+	speed->setRange(0.000, 1.000);
+
+	//adding terms
+	speed->addTerm(new Ramp("moving_left", 1.000, 0.000));
+	speed->addTerm(new Ramp("moving_right", 0.000, 1.000));
+	speed->addTerm(new Triangle("moving_none", 0.250, 0.750));
+
 	//creating an output variable
 	OutputVariable* mSteer = new OutputVariable;
 	engine->addOutputVariable(mSteer);
@@ -36,12 +49,12 @@ int main()
 	//rules
 	RuleBlock* mamdani = new RuleBlock;
 	mamdani->setName("mamdani");
-	mamdani->setConjunction(fl::null);
-	mamdani->setDisjunction(fl::null);
+	mamdani->setConjunction(new AlgebraicProduct);
+	mamdani->setDisjunction(new Maximum);
 	mamdani->setImplication(new AlgebraicProduct);
 	mamdani->setActivation(new General);
-	mamdani->addRule(Rule::parse("if obstacle is left then mSteer is right", engine));
-	mamdani->addRule(Rule::parse("if obstacle is right then mSteer is left", engine));
+	mamdani->addRule(Rule::parse("if obstacle is left or speed is moving_left then mSteer is right", engine));
+	mamdani->addRule(Rule::parse("if obstacle is right or speed is moving_right then mSteer is left", engine));
 	engine->addRuleBlock(mamdani);
 
 	while (1)
@@ -54,8 +67,19 @@ int main()
 		ss >> number;
 
 		obstacle->setValue(number);
+
+		std::string Speedinput = "";
+		std::cin >> Speedinput;
+
+		std::stringstream ssSpeed(Speedinput);
+		float Speednumber = 0.0f;
+		ssSpeed >> Speednumber;
+
+		speed->setValue(Speednumber);
+
+
 		engine->process();
-		std::cout << "obstacle.input = " << number << " = > steer.output = " << mSteer->getValue() << std::endl;
+		std::cout << "obstacle.input = " << number << "speed.input = " << Speednumber << " = > steer.output = " << mSteer->getValue() << std::endl;
 	}
 
 	delete engine;
