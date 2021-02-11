@@ -33,15 +33,31 @@ int main()
 	mSteer->addTerm(new Ramp("left", 1.000, 0.000));
 	mSteer->addTerm(new Ramp("right", 0.000, 1.000));
 
+	//rules
 	RuleBlock* mamdani = new RuleBlock;
 	mamdani->setName("mamdani");
 	mamdani->setConjunction(fl::null);
 	mamdani->setDisjunction(fl::null);
 	mamdani->setImplication(new AlgebraicProduct);
 	mamdani->setActivation(new General);
-	mamdani->addRule(Rule::parse("if obstacle is left the mSteer is right", engine));
+	mamdani->addRule(Rule::parse("if obstacle is left then mSteer is right", engine));
 	mamdani->addRule(Rule::parse("if obstacle is right then mSteer is left", engine));
 	engine->addRuleBlock(mamdani);
+
+	while (1)
+	{
+		std::string input = "";
+		std::cin >> input;
+
+		std::stringstream ss(input);
+		float number = 0.0f;
+		ss >> number;
+
+		obstacle->setValue(number);
+		engine->process();
+		std::cout << "obstacle.input = " << number << " = > steer.output = " << mSteer->getValue() << std::endl;
+	}
+
 	delete engine;
 	return 0;
 }
