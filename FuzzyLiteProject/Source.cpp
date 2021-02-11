@@ -33,6 +33,15 @@ int main()
 	mSteer->addTerm(new Ramp("left", 1.000, 0.000));
 	mSteer->addTerm(new Ramp("right", 0.000, 1.000));
 
+	RuleBlock* mamdani = new RuleBlock;
+	mamdani->setName("mamdani");
+	mamdani->setConjunction(fl::null);
+	mamdani->setDisjunction(fl::null);
+	mamdani->setImplication(new AlgebraicProduct);
+	mamdani->setActivation(new General);
+	mamdani->addRule(Rule::parse("if obstacle is left the mSteer is right", engine));
+	mamdani->addRule(Rule::parse("if obstacle is right then mSteer is left", engine));
+	engine->addRuleBlock(mamdani);
 	delete engine;
 	return 0;
 }
